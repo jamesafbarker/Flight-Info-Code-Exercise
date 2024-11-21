@@ -10,14 +10,15 @@
 #include "CommunicationProtocol.h"
 #include "MessageListener.h"
 
-MessageListener* messageListener = nullptr;
+#include "FlightInfoLogger.h"
 
+FlightInfoLogger* fil = nullptr;
 
 void handleSignal(int signal) 
 {
-    if (messageListener) { 
+    if (fil) { 
         std::cout << "Signal " << signal << " received. Stopping the service..." << std::endl;
-        messageListener->stop();
+        fil->stop();
     } 
 } 
 
@@ -28,8 +29,8 @@ int main(int argc, char ** argv)
 
     // Initialise UDP communication
     UPDCommunicationProtocol protocol;
-    messageListener = new MessageListener(&protocol);
-    if (messageListener->start())
+    fil = new FlightInfoLogger(&protocol);
+    if (fil->start())
     {
         std::cout << "Started Flight Information Listener service.\n";
         while (true)

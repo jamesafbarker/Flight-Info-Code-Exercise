@@ -23,7 +23,8 @@ class MessageListener
 {
 public:
     /// @brief Constructor
-    MessageListener(ICommunicationProtocol* protocol);
+    MessageListener(ICommunicationProtocol* protocol,
+                    Database * db);
 
     /// @brief Deconstructor of Message Listener
     ~MessageListener();
@@ -46,26 +47,19 @@ private:
      */
     void processBuffer();
 
-    /**
-    * @brief Worker thread to handle database operations.
-    */
-    void databaseWorker();
-
 private:
-    int m_port;
     // Message Listener
     std::thread m_listenThread;
-    std::deque<char> m_buffer;
-    std::atomic<bool> m_running;
-    BufferHandler m_bufferHandler;
-    ICommunicationProtocol * m_commProtocol;
-
-    // Database
-    Database m_database;
-    std::thread m_dbThread;
-    std::queue<FlightInfoData> dbQueue;
     std::mutex queueMutex;
     std::condition_variable cv;
+    std::atomic<bool> m_running;    
+    std::deque<char> m_buffer;
+    
+    BufferHandler m_bufferHandler;
+    ICommunicationProtocol * m_commProtocol;
+    
+    // Database
+    Database * m_database;
 };
 
 #endif // MESSAGELISTENER_H

@@ -6,14 +6,27 @@
 /// @brief Constructor for Database object
 Database::Database()
 {
-
+    m_running = true;
+    db_thread = std::thread(&Database::databaseWorker, this);
 };
 
 /// @brief Destructor for Database object
 Database::~Database()
 {
-    save("~/Documents/code/BurannaCode/build/sample.txt");
+    m_running = false;
+    cv.notify_all(); // Notify the worker thread to stop
+    if (db_thread.joinable()) {
+        db_thread.join();
+    }
 };
+
+/// @brief Add Flight Information to the database
+/// @param info Fight Information struct
+void Database::insertInfo(FlightInfoData info) {
+    std::lock_guard<std::mutex> lock(queueMutex);
+    dbQueue.push(info);
+    cv.notify_one(); // Notify the worker thread
+}
 
 void Database::addInfo(FlightInfoData info)
 {
@@ -38,3 +51,28 @@ bool Database::save(const std::string& filename) const {
     // Todo: Save to file
     return true;
 }
+
+/**
+* @brief Worker thread to handle database operations.
+*/
+void Database::databaseWorker()
+{
+    while (m_running || !dbQueue.empty()) {
+        std::unique_lock<std::mutex> lock(queueMutex);
+        cv.wait(lock, [this] { return !dbQueue.empty() || !m_running; });
+
+        while (!dbQueue.empty()) {
+            FlightInfoData data = dbQueue.front();
+            dbQueue.pop();
+            lock.unlock();
+            addInfo(data);
+            lock.lock();
+        }
+    }
+};
+
+/// @brief Checks size of database
+/// @return True if is empty
+bool Database::isEmpty() {
+    return flightInfos.empty();
+};

@@ -3,9 +3,10 @@
 #include "PayloadParser.h"
 
 /// @brief Constructor
-MessageListener::MessageListener(ICommunicationProtocol* protocol)
+MessageListener::MessageListener(ICommunicationProtocol* protocol, Database * db)
 : m_running(false)
 , m_commProtocol(protocol)
+, m_database(db)
 {
     // Register processors
     m_bufferHandler.registerParser<BinaryPayloadParser>(1);
@@ -27,7 +28,6 @@ bool MessageListener::start()
         return false;
     m_running = true;
     m_listenThread = std::thread(&MessageListener::listen, this);
-    m_dbThread = std::thread(&MessageListener::databaseWorker, this);
     return true;
 };
 
@@ -40,8 +40,6 @@ void MessageListener::stop()
     cv.notify_all();
     if (m_listenThread.joinable())
         m_listenThread.join();
-    if (m_dbThread.joinable())
-        m_dbThread.join();
     m_commProtocol->stopProtocol();
 };
 
@@ -83,32 +81,11 @@ void MessageListener::processBuffer()
 
         if (success){
             std::cout << "Flight Information Data received. Adding to Database...\n";
-            std::lock_guard<std::mutex> lock(queueMutex);
-            dbQueue.push(result);
+            // Call to database to add data when able to
+            m_database->insertInfo(result);
         } else {
             std::cout << "Invalid message received.\n";
             m_buffer.clear();
-        }
-    }
-};
-
-/**
-* @brief Worker thread to handle database operations.
-*/
-void MessageListener::databaseWorker()
-{
-    while (m_running || !dbQueue.empty()) {
-        std::unique_lock<std::mutex> lock(queueMutex);
-        cv.wait(lock, [this] { return !dbQueue.empty() || !m_running; });
-
-        while (!dbQueue.empty()) {
-            FlightInfoData data = dbQueue.front();
-            dbQueue.pop();
-            lock.unlock();
-
-            // Save the result to the database (file)
-            m_database.addInfo(data);
-            lock.lock();
         }
     }
 };

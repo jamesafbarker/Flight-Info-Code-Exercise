@@ -3,6 +3,7 @@ set(SOURCES
     BufferHandler.cpp
     Database.cpp
     FlightInfoData.cpp
+    FlightInfoLogger.cpp
     CommunicationProtocol.cpp
     MessageListener.cpp
     PayloadParser.cpp

@@ -10,6 +10,7 @@ set(SRC_FILES
     ${CMAKE_SOURCE_DIR}/src/BufferHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/CommunicationProtocol.cpp
     ${CMAKE_SOURCE_DIR}/src/Database.cpp
+    ${CMAKE_SOURCE_DIR}/src/FlightInfoLogger.cpp
     ${CMAKE_SOURCE_DIR}/src/FlightInfoData.cpp
     ${CMAKE_SOURCE_DIR}/src/MessageListener.cpp
     ${CMAKE_SOURCE_DIR}/src/PayloadParser.cpp
