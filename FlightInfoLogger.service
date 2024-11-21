@@ -1,0 +1,9 @@
+[Unit]
+Description=Receives Flight Information
+After=network.target
+
+[Service]
+ExecStart=/bin/bash /usr/local/bin/FlightInfoLogger
+
+[Install]
+WantedBy=multi-user.target
