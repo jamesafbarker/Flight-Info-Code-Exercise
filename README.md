@@ -8,7 +8,7 @@ This service receives flight information over a UDP message protocol and then sa
 - Checksum algorithm is not defined. Currently the validation of the checksum always returns true. This needs to be implemented with a more sophisticated algorithm.
 - UDP communication protocol is not implemented currently, as per specification, so the service when run will not receive data.
 - Some internal message parsing has been done however more comprehensive error-checking could be done.
-- The Database class is currently a dummy class which is supposed to represent saving of 
+- The Database class is currently a dummy class which is supposed to  represent some form of actual database (SQL, save to file).
 
 
 ## Building and Running Project
